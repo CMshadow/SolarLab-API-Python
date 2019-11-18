@@ -76,80 +76,70 @@ def findClosestWeatherFile(targetLon, targetLat):
 
     return closestWeatherFile
 
-# def mainProgram():
-#     """Calculate optimal Tilt and Azimuth."""
-#     outputFile = open('optimalTiltAndAzimuth.txt', 'a')
-#
-#     for (ind, filename) in enumerate(os.listdir(path)):
-#         if ind < 721:
-#             continue
-#         if ind > 740:
-#             break
-#         pool = Pool()
-#         starttime = time.time()
-#
-#         weatherFilePath = os.path.join(path, filename)
-#
-#         tmy3Data, tmy3Metadata = pvlib.tmy.readtmy3(weatherFilePath)
-#         lat = tmy3Metadata['latitude']
-#         lon = tmy3Metadata['longitude']
-#         alt = tmy3Metadata['altitude']
-#         station = tmy3Metadata['Name'] + ' ' + tmy3Metadata['State']
-#
-#         DNI = tmy3Data.DNI
-#         DHI = tmy3Data.DHI
-#         GHI = tmy3Data.GHI
-#         PresPa = tmy3Data.Pressure * 100
-#         solar_position = pvlib.solarposition.get_solarposition(
-#             tmy3Data.index, lat, lon, PresPa, tmy3Data.DryBulb
-#         )
-#         SunAz = solar_position.azimuth
-#         AppSunEl = solar_position.apparent_elevation
-#
-#         tiltArray = np.arange(0, 60, 2)
-#         azimuthArray = np.arange(125, 235, 2)
-#
-#         totalPOA = [[0]*len(azimuthArray) for i in range(len(tiltArray))]
-#
-#         data = []
-#         for i in range(len(tiltArray)):
-#             for j in range(len(azimuthArray)):
-#                 data.append([
-#                     i, j, tiltArray[i], azimuthArray[j], DNI, DHI, GHI, SunAz,
-#                     AppSunEl
-#                 ])
-#
-#         result = pool.map(calcaulateTotalPOA, data)
-#         pool.close()
-#         pool.join()
-#
-#         for i in result:
-#             totalPOA[i[0]][i[1]] = i[2]
-#         totalPOA = np.array(totalPOA)
-#         optimailTiltAndAzimuth = np.unravel_index(
-#             totalPOA.argmax(), totalPOA.shape
-#         )
-#
-#         optimalTilt = tiltArray[optimailTiltAndAzimuth[0]]
-#         optimalAzimuth = azimuthArray[optimailTiltAndAzimuth[1]]
-#
-#         outputFile.write('{},{},{},{},{},{}\n'.format(
-#             lon, lat, alt, station, int(optimalAzimuth), int(optimalTilt)
-#         ))
-#         print(int(optimalAzimuth))
-#         print(int(optimalTilt))
-#         print("Time: {} minutes".format((time.time()-starttime)/60))
-#
-#     outputFile.close()
+
+def calculateOptimalTilt(tmy3Filename, userAzimuth):
+    """Calculate optimal Tilt by given Azimuth and tmy3File."""
+    pool = Pool()
+
+    s3 = boto3.resource('s3')
+    s3.Bucket('us-tmy3').download_file(
+        tmy3Filename, '/tmp/{}'.format(tmy3Filename)
+    )
+    tmy3Data, tmy3Metadata = pvlib.tmy.readtmy3('/tmp/{}'.format(tmy3Filename))
+    lat = tmy3Metadata['latitude']
+    lon = tmy3Metadata['longitude']
+
+    DNI = tmy3Data.DNI
+    DHI = tmy3Data.DHI
+    GHI = tmy3Data.GHI
+    PresPa = tmy3Data.Pressure * 100
+    solar_position = pvlib.solarposition.get_solarposition(
+        tmy3Data.index, lat, lon, PresPa, tmy3Data.DryBulb
+    )
+    SunAz = solar_position.azimuth
+    AppSunEl = solar_position.apparent_elevation
+
+    tiltArray = np.arange(0, 60, 2)
+    azimuthArray = np.array([userAzimuth])
+
+    totalPOA = [[0]*len(azimuthArray) for i in range(len(tiltArray))]
+
+    data = []
+    for i in range(len(tiltArray)):
+        for j in range(len(azimuthArray)):
+            data.append([
+                i, j, tiltArray[i], azimuthArray[j], DNI, DHI, GHI, SunAz,
+                AppSunEl
+            ])
+
+    result = pool.map(calcaulateTotalPOA, data)
+    pool.close()
+    pool.join()
+
+    for i in result:
+        totalPOA[i[0]][i[1]] = i[2]
+    totalPOA = np.array(totalPOA)
+    optimailTiltAndAzimuth = np.unravel_index(
+        totalPOA.argmax(), totalPOA.shape
+    )
+
+    optimalTilt = tiltArray[optimailTiltAndAzimuth[0]]
+    optimalAzimuth = azimuthArray[optimailTiltAndAzimuth[1]]
+
+    print(optimalTilt)
+    print(optimalAzimuth)
 
 
 def lambda_handler(event, context):
     """Lambda invoke function."""
     targetLon = event['longitude']
     targetLat = event['latitude']
+    userAzimuth = event['azimuth']
 
     closestWeatherFile = findClosestWeatherFile(targetLon, targetLat)
-    print(closestWeatherFile)
+    tmy3Filename = closestWeatherFile['filename']
+
+    calculateOptimalTilt(tmy3Filename, userAzimuth)
 
     return {
         "statusCode": 200,
