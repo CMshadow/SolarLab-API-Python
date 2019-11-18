@@ -3,7 +3,7 @@ SolarLab APIs on AWS Lambda, Python codes
 
 ## Build Application
 ```shell
-$ sam build
+$ sam build --use-container
 ```
 
 ## Test Application Locally
