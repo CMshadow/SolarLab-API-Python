@@ -4,11 +4,11 @@ import json
 import math
 import numpy as np
 import pvlib
-from multiprocessing import Pool
+from multiprocessing import Process, Pipe
 from infrastructure import math as myMath
 
 
-def calcaulateTotalPOA(parameters):
+def calcaulateTotalPOA(parameters, conn):
     """Calculate total POA."""
     tilt = parameters[2]
     azimuth = parameters[3]
@@ -36,9 +36,10 @@ def calcaulateTotalPOA(parameters):
     monthlyPOA = hourPOA.values.reshape(-1, 730).sum(1)
     monthlyPOA = monthlyPOA / 1000
 
-    return [
+    conn.send([
         parameters[0], parameters[1], totalPOA, minPOA, monthlyPOA.tolist()
-    ]
+    ])
+    conn.close()
 
 
 def findClosestWeatherFile(targetLon, targetLat):
@@ -79,7 +80,6 @@ def findClosestWeatherFile(targetLon, targetLat):
 
 def calculateOptimalTilt(tmy3Filename, userAzimuth):
     """Calculate optimal Tilt by given Azimuth and tmy3File."""
-    pool = Pool()
 
     s3 = boto3.resource('s3')
     s3.Bucket('us-tmy3').download_file(
@@ -104,17 +104,27 @@ def calculateOptimalTilt(tmy3Filename, userAzimuth):
 
     totalPOA = [[0]*len(azimuthArray) for i in range(len(tiltArray))]
 
-    data = []
+    parent_connections = []
+    processes = []
     for i in range(len(tiltArray)):
         for j in range(len(azimuthArray)):
-            data.append([
+            parent_conn, child_conn = Pipe()
+            parent_connections.append(parent_conn)
+            p = Process(target=calcaulateTotalPOA, args=([
                 i, j, tiltArray[i], azimuthArray[j], DNI, DHI, GHI, SunAz,
                 AppSunEl
-            ])
+            ], child_conn,))
+            processes.append(p)
 
-    result = pool.map(calcaulateTotalPOA, data)
-    pool.close()
-    pool.join()
+    for process in processes:
+        process.start()
+
+    for process in processes:
+        process.join()
+
+    result = []
+    for parent_connection in parent_connections:
+        result.append(parent_connection.recv())
 
     for i in result:
         totalPOA[i[0]][i[1]] = i[2]
@@ -128,6 +138,7 @@ def calculateOptimalTilt(tmy3Filename, userAzimuth):
 
     print(optimalTilt)
     print(optimalAzimuth)
+    return int(optimalTilt)
 
 
 def lambda_handler(event, context):
@@ -139,11 +150,11 @@ def lambda_handler(event, context):
     closestWeatherFile = findClosestWeatherFile(targetLon, targetLat)
     tmy3Filename = closestWeatherFile['filename']
 
-    calculateOptimalTilt(tmy3Filename, userAzimuth)
+    optimalTilt = calculateOptimalTilt(tmy3Filename, userAzimuth)
 
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "hello world",
+            "optimalTilt": optimalTilt,
         }),
     }

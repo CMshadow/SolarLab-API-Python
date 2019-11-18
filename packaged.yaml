@@ -4,7 +4,14 @@ Resources:
   OptimalTiltFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://solarlab-sam-lambda/239bb943c004ac57140973c8c6ca1678
+      CodeUri: s3://solarlab-sam-lambda/ac022fbea452220ab90b1cfc1af5369a
       Handler: optimalTiltApp.lambda_handler
+      Runtime: python3.6
+      Timeout: 60
+  FetchGlobalOptimalFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://solarlab-sam-lambda/48aef52925be38d3ecde4b0c10b49865
+      Handler: fetchGlobalOptimalApp.lambda_handler
       Runtime: python3.6
       Timeout: 60

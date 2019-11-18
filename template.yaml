@@ -9,3 +9,10 @@ Resources:
       Handler: optimalTiltApp.lambda_handler
       Runtime: python3.6
       Timeout: 60
+  FetchGlobalOptimalFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: fetchGlobalOptimalApp.lambda_handler
+      Runtime: python3.6
+      Timeout: 60
