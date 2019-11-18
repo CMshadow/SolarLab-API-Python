@@ -3,7 +3,7 @@ SolarLab APIs on AWS Lambda, Python codes
 
 ## Build Application
 ```shell
-$ sam build --use-container
+$ sam build
 ```
 
 ## Test Application Locally
@@ -18,7 +18,7 @@ $ sam local invoke --event ./events/event.json
 - `packaged.yaml` : deploy settings
   
 ```shell
-$ sam package --template-file template.yaml --s3-bucket solarlab-sam-lambda --output-template-file packaged.yaml
+$ sam package --s3-bucket solarlab-sam-lambda --output-template-file packaged.yaml
 ```
 
 ## Deploy packaged SAM template
