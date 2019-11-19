@@ -4,14 +4,21 @@ Resources:
   OptimalTiltFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://solarlab-sam-lambda/ac022fbea452220ab90b1cfc1af5369a
+      CodeUri: s3://solarlab-sam-lambda/bf531f03d5eb2059e43aa43b4394abcd
       Handler: optimalTiltApp.lambda_handler
       Runtime: python3.6
       Timeout: 60
   FetchGlobalOptimalFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://solarlab-sam-lambda/48aef52925be38d3ecde4b0c10b49865
+      CodeUri: s3://solarlab-sam-lambda/f71f8663e1d9c60dfaa45326a13fbc3b
       Handler: fetchGlobalOptimalApp.lambda_handler
       Runtime: python3.6
       Timeout: 60
+  OptimalTiltAzimuthSubprocessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://solarlab-sam-lambda/e3d889d606636b53e16dbd7dfd746686
+      Handler: optimalTiltAzimuthSubprocessApp.lambda_handler
+      Runtime: python3.6
+      Timeout: 300
