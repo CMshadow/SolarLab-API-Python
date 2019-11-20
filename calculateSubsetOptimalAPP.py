@@ -51,9 +51,4 @@ def lambda_handler(event, context):
 
     optimalTilt = calculateSubsetOptimal(tmy3Filename, tilts, azimuths)
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "optimalTilt": json.dumps(optimalTilt),
-        }),
-    }
+    return optimalTilt
