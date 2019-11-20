@@ -2,17 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  OptimalTiltFunction:
+  CalculateSubsetOptimalFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Handler: optimalTiltApp.lambda_handler
-      Runtime: python3.6
-      Timeout: 60
-  FetchGlobalOptimalFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: ./
-      Handler: fetchGlobalOptimalApp.lambda_handler
+      Handler: calculateSubsetOptimalAPP.lambda_handler
       Runtime: python3.6
       Timeout: 60

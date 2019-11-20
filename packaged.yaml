@@ -1,17 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  OptimalTiltFunction:
+  CalculateSubsetOptimalFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://solarlab-sam-lambda/ac022fbea452220ab90b1cfc1af5369a
-      Handler: optimalTiltApp.lambda_handler
-      Runtime: python3.6
-      Timeout: 60
-  FetchGlobalOptimalFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: s3://solarlab-sam-lambda/48aef52925be38d3ecde4b0c10b49865
-      Handler: fetchGlobalOptimalApp.lambda_handler
+      CodeUri: s3://solarlab-sam-lambda/966c13e02f014a81a0616b2ac2ad9ba0
+      Handler: calculateSubsetOptimalAPP.lambda_handler
       Runtime: python3.6
       Timeout: 60
