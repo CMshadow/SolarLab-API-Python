@@ -1,5 +1,7 @@
 {
   "longitude": -117.842801,
   "latitude": 33.645568,
-  "azimuth": 195
+  "azimuths": [195, 200],
+  "tilts": [30, 32],
+  "weatherFilename": "722977TYA.CSV"
 }

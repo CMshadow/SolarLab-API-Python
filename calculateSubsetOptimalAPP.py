@@ -2,9 +2,7 @@
 import boto3
 import json
 import pvlib
-import numpy as np
 from infrastructure.calculateTotalPOA import calcaulateTotalPOA
-from infrastructure.findClosestWeatherFile import findClosestWeatherFile
 
 
 def calculateSubsetOptimal(tmy3Filename, tiltList, AzimuthList):
@@ -34,22 +32,24 @@ def calculateSubsetOptimal(tmy3Filename, tiltList, AzimuthList):
     result = map(calcaulateTotalPOA, runData)
     sortedResult = sorted(list(result), key=lambda x: x[2], reverse=True)
 
-    return sortedResult[0]
+    return {
+        'tilt': sortedResult[0][0],
+        'azimuth': sortedResult[0][1],
+        'totalPOA': sortedResult[0][2],
+        'minPOA': sortedResult[0][3],
+        'monthlyPOA': sortedResult[0][4]
+    }
 
 
 def lambda_handler(event, context):
     """Lambda invoke function."""
     targetLon = event['longitude']
     targetLat = event['latitude']
-    userAzimuth = event['azimuth']
+    azimuths = event['azimuths']
+    tilts = event['tilts']
+    tmy3Filename = event['weatherFilename']
 
-    closestWeatherFile = findClosestWeatherFile(targetLon, targetLat)
-
-    tmy3Filename = closestWeatherFile['filename']
-
-    tiltList = range(0, 51, 2)
-    AzimuthList = [userAzimuth]
-    optimalTilt = calculateSubsetOptimal(tmy3Filename, tiltList, AzimuthList)
+    optimalTilt = calculateSubsetOptimal(tmy3Filename, tilts, azimuths)
 
     return {
         "statusCode": 200,
