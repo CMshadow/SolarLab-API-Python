@@ -24,8 +24,8 @@ def calcaulateTotalPOA(parameters):
     ediffSky = pvlib.irradiance.isotropic(tilt, DHI)
     Albedo = 0.2
     ediffGround = pvlib.irradiance.grounddiffuse(tilt, GHI, Albedo)
-    totalPOA = sum(eb) + sum(ediffSky) + sum(ediffGround)
-    minPOA = sum(ediffSky) + sum(ediffGround)
+    totalPOA = (sum(eb) + sum(ediffSky) + sum(ediffGround)) / 1000
+    minPOA = (sum(ediffSky) + sum(ediffGround)) / 1000
 
     hourPOA = eb + ediffSky + ediffGround
     monthlyPOA = hourPOA.values.reshape(-1, 730).sum(1)

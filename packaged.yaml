@@ -4,7 +4,14 @@ Resources:
   CalculateSubsetOptimalFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://solarlab-sam-lambda/966c13e02f014a81a0616b2ac2ad9ba0
+      CodeUri: s3://solarlab-sam-lambda/f933203c67bc7288635b9d3e4bce7df3
       Handler: calculateSubsetOptimalAPP.lambda_handler
       Runtime: python3.6
       Timeout: 60
+  CalculateAllRoofPOAFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://solarlab-sam-lambda/cc1fafa62b00408f34a9f60ae20cbc0c
+      Handler: calculateAllRoofPOAAPP.lambda_handler
+      Runtime: python3.6
+      Timeout: 30

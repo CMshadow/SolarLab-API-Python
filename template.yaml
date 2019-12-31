@@ -9,3 +9,11 @@ Resources:
       Handler: calculateSubsetOptimalAPP.lambda_handler
       Runtime: python3.6
       Timeout: 60
+
+  CalculateAllRoofPOAFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: calculateAllRoofPOAAPP.lambda_handler
+      Runtime: python3.6
+      Timeout: 30

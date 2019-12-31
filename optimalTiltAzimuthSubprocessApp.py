@@ -5,9 +5,6 @@ import math
 import time
 import numpy as np
 from infrastructure.calculateTotalPOA import calcaulateTotalPOA
-from infrastructure.calculateTotalPOA import calcaulateTotalPOA
-
-
 
 def calculateOptimalTiltAzimuthSubprocess(tmy3Filename, tilt, azimuth):
     """Calculate optimal Tilt and Azimuth by a tmy3File."""
