@@ -17,3 +17,11 @@ Resources:
       Handler: calculateAllRoofPOAAPP.lambda_handler
       Runtime: python3.6
       Timeout: 30
+
+  generateSubsetReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: generateSubsetReportAPP.lambda_handler
+      Runtime: python3.6
+      Timeout: 30
